@@ -54,9 +54,9 @@ struct DayAnalysis {
 
 impl DayAnalysis {
 
-    fn new() -> DayAnalysis {
+    fn new(date:Date) -> DayAnalysis {
         DayAnalysis {
-            date : OffsetDateTime::try_now_local().unwrap().date(),
+            date : date,
             moods : MoodAnalysis::new(),
         }
     }
@@ -108,11 +108,11 @@ impl InProgressReport {
 //     }
 
 //     fn add_user_mood(&mut self, user:User, mood:Mood) {
-        
+
 //         if (pending.empty()) {
 //             let ipr = InProgressReport::new();
 //         } else {
-            
+
 //         }
 
 
@@ -156,11 +156,15 @@ impl TeamReport {
                         da.add_mood(OffsetDateTime::try_now_local().unwrap().date(), *mood);
                     }
                 } else {
-                    let mut da = DayAnalysis::new();
-                    da.add_mood(OffsetDateTime::try_now_local().unwrap().date(), *mood);
+                    let now = if let Ok(odt) = OffsetDateTime::try_now_local() {
+                        odt.date()
+                    } else { Date::try_from_ymd(1, 1, 1).unwrap() };
+
+                    let mut da = DayAnalysis::new(now);
+                    da.add_mood(now, *mood);
                     self.moods_history.push(da);
                 }
-                
+
             }
         }
     }
