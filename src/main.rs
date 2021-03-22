@@ -2,7 +2,7 @@ use enum_map::EnumMap;
 use enum_map::enum_map;
 use enum_map::Enum;
 
-use std::collections::HashMap;
+use std::{collections::{HashMap, HashSet}, intrinsics::add_with_overflow};
 
 extern crate time;
 use time::{Date, OffsetDateTime};
@@ -69,7 +69,7 @@ impl DayAnalysis {
 
 #[derive(Debug, Clone)]
 struct InProgressReport {
-    hash_map:HashMap<User, Mood>
+    hash_map:HashMap<String, Mood>
 }
 
 impl InProgressReport {
@@ -80,65 +80,83 @@ impl InProgressReport {
         }
     }
 
-    fn add_or_change_report(&mut self, user:User, mood:Mood) {
+    fn add_or_change_report(&mut self, user:String, mood:Mood) {
         self.hash_map.insert(user, mood);
     }
 }
 
-// struct NikoNiko {
-//     all_teams_history:Vec<TeamReport>
-//     pending:Vec<InProgressReport>
-// }
+struct NikoNiko {
+    all_users:HashSet<String>,
+    all_teams_history:HashMap<String, TeamReport>,
+    pending:Vec<InProgressReport>,
+}
 
-// impl NikoNiko {
+impl NikoNiko {
 
-//     fn new() -> NikoNiko {
-//         NikoNiko {
-//             all_teams_history : vec!(),
-//             pending : vec!(),
-//         }
-//     }
+    fn new() -> NikoNiko {
+        NikoNiko {
+            all_users: HashSet::new(),
+            all_teams_history : HashMap::new(),
+            pending : vec!(),
+        }
+    }
 
-//     fn add_team(&mut self, team:TeamReport) {
-//         users.push_back(user);
-//     }
+    fn create_team(&mut self, team_name:String) {
+        let new_team = TeamReport::new(team_name);
+        self.all_teams_history.insert(team_name, new_team);
+    }
 
-//     fn add_user_to_team(&mut self, user:User, team:TeamReport) {
-//         all_teams_history.push_back(user);
-//     }
+    fn create_user(&mut self, user_name:String) {
+        self.all_users.insert(user_name);
+    }
 
-//     fn add_user_mood(&mut self, user:User, mood:Mood) {
+    fn add_user_to_group(&mut self, user_name:String, team_name:String) {
+        if None == self.all_users.get(&user_name) {
+            return;
+        }
+        let report = self.all_teams_history.get(&team_name);
+        match report {
+            Some(report) => {
+                report.add_user(user_name);
+            },
+            None => return,
+        }
+    }
 
-//         if (pending.empty()) {
-//             let ipr = InProgressReport::new();
-//         } else {
+    fn add_user_mood(&mut self, user:User, mood:Mood) {
 
-//         }
+        if (pending.empty()) {
+            let ipr = InProgressReport::new();
+        } else {
+
+        }
 
 
-//     }
-// }
+    }
+}
 
 #[derive(Debug, Clone)]
 struct TeamReport {
+    name:String,
     moods_history:Vec<DayAnalysis>,
-    users:Vec<User>
+    users:Vec<String>
 }
 
 impl TeamReport {
 
-    fn new() -> TeamReport {
+    fn new(team_name:String) -> TeamReport {
         TeamReport {
+            name : team_name,
             moods_history : vec!(),
             users : vec!(),
         }
     }
 
-    fn add_user(&mut self, user:User) {
+    fn add_user(&mut self, user:String) {
         self.users.push(user)
     }
 
-    fn remove_user(&mut self, user:User) {
+    fn remove_user(&mut self, user:String) {
         if let Some(pos) = self.users.iter().position(|x| *x == user) {
             self.users.remove(pos);
         }
@@ -176,51 +194,65 @@ impl TeamReport {
 
 fn main() {
 
-    // let nikoniko = NikoNiko::new()
+    let nikoniko = NikoNiko::new();
+    // let nikoniko.configure()
+    nikoniko.create_team("team1".to_owned());
+    nikoniko.create_team("team2".to_owned());
+    nikoniko.create_team("team3".to_owned());
+    nikoniko.create_user("user1".to_owned());
+    nikoniko.create_user("user2".to_owned());
+    nikoniko.create_user("user3".to_owned());
+    nikoniko.add_user_to_group("user1".to_owned(), "team1".to_owned());
+    nikoniko.add_user_to_group("user2".to_owned(), "team2".to_owned());
+    nikoniko.add_user_to_group("user3".to_owned(), "team1".to_owned());
+    nikoniko.add_user_to_group("user2".to_owned(), "team".to_owned());
+    //nikoniko.user_add_mood("user1", mood);
+    //nikoniko.user_add_mood("user2", mood);
+    // nikoniko.user_add_mood("user", mood) <= rempl le in progress si encore valable, sinon transfert et en crée un nouveau
 
-    let user_a = User::new("John".to_string());
-    let user_b = User::new("Mary".to_string());
-    let user_c = User::new("Peter".to_string());
-    let user_d = User::new("Alan".to_string());
-    let user_e = User::new("Pixie".to_string());
+    // let user_a = User::new("John".to_string());
+    // let user_b = User::new("Mary".to_string());
+    // let user_c = User::new("Peter".to_string());
+    // let user_d = User::new("Alan".to_string());
+    // let user_e = User::new("Pixie".to_string());
 
-    let mut team_xxx = TeamReport::new();
-    let mut team_yyy = TeamReport::new();
-    let mut team_zzz = TeamReport::new();
-    let mut team_all = TeamReport::new();
+    // let mut team_xxx = TeamReport::new();
+    // let mut team_yyy = TeamReport::new();
+    // let mut team_zzz = TeamReport::new();
+    // let mut team_all = TeamReport::new();
 
-    team_xxx.add_user(user_a.clone());
-    team_xxx.add_user(user_b.clone());
-    team_xxx.add_user(user_c.clone());
+    // team_xxx.add_user(user_a.clone());
+    // team_xxx.add_user(user_b.clone());
+    // team_xxx.add_user(user_c.clone());
 
-    team_yyy.add_user(user_a.clone());
-    team_yyy.add_user(user_d.clone());
-    team_yyy.add_user(user_e.clone());
+    // team_yyy.add_user(user_a.clone());
+    // team_yyy.add_user(user_d.clone());
+    // team_yyy.add_user(user_e.clone());
 
-    team_zzz.add_user(user_b.clone());
-    team_zzz.add_user(user_c.clone());
-    team_zzz.add_user(user_d.clone());
-    team_zzz.remove_user(user_c.clone());
+    // team_zzz.add_user(user_b.clone());
+    // team_zzz.add_user(user_c.clone());
+    // team_zzz.add_user(user_d.clone());
+    // team_zzz.remove_user(user_c.clone());
 
-    team_all.add_user(user_a.clone());
-    team_all.add_user(user_b.clone());
-    team_all.add_user(user_c.clone());
-    team_all.add_user(user_d.clone());
-    team_all.add_user(user_e.clone());
+    // team_all.add_user(user_a.clone());
+    // team_all.add_user(user_b.clone());
+    // team_all.add_user(user_c.clone());
+    // team_all.add_user(user_d.clone());
+    // team_all.add_user(user_e.clone());
 
-    let mut day_d1 = InProgressReport::new();
-    day_d1.add_or_change_report(user_a.clone(), Mood::Red);
-    day_d1.add_or_change_report(user_b.clone(), Mood::Green);
-    day_d1.add_or_change_report(user_c.clone(), Mood::Yellow);
-    day_d1.add_or_change_report(user_d.clone(), Mood::Yellow);
-    day_d1.add_or_change_report(user_e.clone(), Mood::Blue);
+    // let mut day_d1 = InProgressReport::new();
+    // day_d1.add_or_change_report(user_a.clone(), Mood::Red);
+    // day_d1.add_or_change_report(user_b.clone(), Mood::Green);
+    // day_d1.add_or_change_report(user_c.clone(), Mood::Yellow);
+    // day_d1.add_or_change_report(user_d.clone(), Mood::Yellow);
+    // day_d1.add_or_change_report(user_e.clone(), Mood::Blue);
 
-    let mut day_d2 = InProgressReport::new();
-    day_d2.add_or_change_report(user_a.clone(), Mood::Red);
-    day_d2.add_or_change_report(user_b.clone(), Mood::Green);
-    day_d2.add_or_change_report(user_c.clone(), Mood::Yellow);
-    day_d2.add_or_change_report(user_d.clone(), Mood::Yellow);
-    day_d2.add_or_change_report(user_e.clone(), Mood::Blue);
+    // let mut day_d2 = InProgressReport::new();
+    // day_d2.add_or_change_report(user_a.clone(), Mood::Red);
+    // day_d2.add_or_change_report(user_b.clone(), Mood::Green);
+    // day_d2.add_or_change_report(user_c.clone(), Mood::Yellow);
+    // day_d2.add_or_change_report(user_d.clone(), Mood::Yellow);
+    // day_d2.add_or_change_report(user_e.clone(), Mood::Blue);
 
     // let now = OffsetDateTime::try_now_local().unwrap();
     // let date_today = now.date();
