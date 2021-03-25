@@ -2,7 +2,7 @@ use enum_map::EnumMap;
 use enum_map::enum_map;
 use enum_map::Enum;
 
-use std::{collections::{HashMap, HashSet}, intrinsics::add_with_overflow};
+use std::{collections::{HashMap, HashSet}};
 
 extern crate time;
 use time::{Date, OffsetDateTime};
@@ -102,7 +102,7 @@ impl NikoNiko {
     }
 
     fn create_team(&mut self, team_name:String) {
-        let new_team = TeamReport::new(team_name);
+        let new_team = TeamReport::new(team_name.clone());
         self.all_teams_history.insert(team_name, new_team);
     }
 
@@ -114,25 +114,38 @@ impl NikoNiko {
         if None == self.all_users.get(&user_name) {
             return;
         }
-        let report = self.all_teams_history.get(&team_name);
+        let report = self.all_teams_history.get_mut(&team_name);
         match report {
             Some(report) => {
-                report.add_user(user_name);
+                report.add_user(user_name.clone());
             },
             None => return,
         }
     }
 
-    fn add_user_mood(&mut self, user:User, mood:Mood) {
-
-        if (pending.empty()) {
-            let ipr = InProgressReport::new();
-        } else {
-
+    fn remove_user_to_group(&mut self, user_name:String, team_name:String) {
+        if None == self.all_users.get(&user_name) {
+            return;
         }
-
-
+        let report = self.all_teams_history.get_mut(&team_name);
+        match report {
+            Some(report) => {
+                report.remove_user(user_name.clone());
+            },
+            None => return,
+        }
     }
+
+    // fn add_user_mood(&mut self, user:User, mood:Mood) {
+
+    //     if (pending.empty()) {
+    //         let ipr = InProgressReport::new();
+    //     } else {
+
+    //     }
+
+
+    // }
 }
 
 #[derive(Debug, Clone)]
@@ -194,7 +207,7 @@ impl TeamReport {
 
 fn main() {
 
-    let nikoniko = NikoNiko::new();
+    let mut nikoniko = NikoNiko::new();
     // let nikoniko.configure()
     nikoniko.create_team("team1".to_owned());
     nikoniko.create_team("team2".to_owned());
@@ -258,21 +271,21 @@ fn main() {
     // let date_today = now.date();
     // let date_yesterday = date_today.previous_day();
 
-    team_xxx.transfer(&day_d1);
-    team_yyy.transfer(&day_d1);
-    team_zzz.transfer(&day_d1);
-    team_all.transfer(&day_d1);
+    // team_xxx.transfer(&day_d1);
+    // team_yyy.transfer(&day_d1);
+    // team_zzz.transfer(&day_d1);
+    // team_all.transfer(&day_d1);
 
-    team_xxx.transfer(&day_d2);
-    team_yyy.transfer(&day_d2);
-    team_zzz.transfer(&day_d2);
-    team_all.transfer(&day_d2);
+    // team_xxx.transfer(&day_d2);
+    // team_yyy.transfer(&day_d2);
+    // team_zzz.transfer(&day_d2);
+    // team_all.transfer(&day_d2);
     //team_report.add_mood(date_yesterday.clone(), Mood::Blue);
     //team_report.add_mood(date_yesterday.clone(), Mood::Blue);
-    dbg!(&mut team_xxx);
-    dbg!(&mut team_yyy);
-    dbg!(&mut team_zzz);
-    dbg!(&mut team_all);
+    // dbg!(&mut team_xxx);
+    // dbg!(&mut team_yyy);
+    // dbg!(&mut team_zzz);
+    // dbg!(&mut team_all);
 
 }
 
